@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0" version="29.2.4">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0" version="29.2.4" pages="2">
   <diagram name="Page-1" id="74e2e168-ea6b-b213-b513-2b3c1d86103e">
     <mxGraphModel dx="1408" dy="748" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
       <root>
@@ -167,6 +167,68 @@
         </mxCell>
         <mxCell id="77e6c97f196da883-24" value="" style="rounded=1;whiteSpace=wrap;html=1;shadow=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=8;align=center;" parent="77e6c97f196da883-7" vertex="1">
           <mxGeometry x="30" y="640" width="100" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="kokvGqOXf75FfBkaYKOa" name="第 2 页">
+    <mxGraphModel dx="1413" dy="763" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="dPbgHbm7_m-JhTGGi9_s-1" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Prediction Layer" vertex="1">
+          <mxGeometry height="208" width="306" x="368" y="786" as="geometry" />
+        </mxCell>
+        <mxCell id="dPbgHbm7_m-JhTGGi9_s-6" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="输入: Mel-spectrogram&#xa;(batch_size, length, 40)" vertex="1">
+          <mxGeometry height="78" width="231" x="405" y="171" as="geometry" />
+        </mxCell>
+        <mxCell id="dPbgHbm7_m-JhTGGi9_s-7" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Prenet&#xa;Linear(40, d_model)" vertex="1">
+          <mxGeometry height="78" width="206" x="418" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="dPbgHbm7_m-JhTGGi9_s-8" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Global Average Pooling" vertex="1">
+          <mxGeometry height="54" width="223" x="409" y="682" as="geometry" />
+        </mxCell>
+        <mxCell id="dPbgHbm7_m-JhTGGi9_s-9" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="BatchNorm1d(d_model)" vertex="1">
+          <mxGeometry height="54" width="229" x="406" y="811" as="geometry" />
+        </mxCell>
+        <mxCell id="dPbgHbm7_m-JhTGGi9_s-10" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Linear(d_model, n_spks)" vertex="1">
+          <mxGeometry height="54" width="236" x="403" y="915" as="geometry" />
+        </mxCell>
+        <mxCell id="dPbgHbm7_m-JhTGGi9_s-11" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="输出: (batch_size, n_spks)" vertex="1">
+          <mxGeometry height="54" width="248" x="397" y="1044" as="geometry" />
+        </mxCell>
+        <mxCell id="dPbgHbm7_m-JhTGGi9_s-12" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Conformer" vertex="1">
+          <mxGeometry height="54" width="136" x="453" y="578" as="geometry" />
+        </mxCell>
+        <mxCell id="dPbgHbm7_m-JhTGGi9_s-13" edge="1" parent="1" source="dPbgHbm7_m-JhTGGi9_s-6" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="dPbgHbm7_m-JhTGGi9_s-7" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dPbgHbm7_m-JhTGGi9_s-14" edge="1" parent="1" source="dPbgHbm7_m-JhTGGi9_s-7" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="dPbgHbm7_m-JhTGGi9_s-12" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dPbgHbm7_m-JhTGGi9_s-15" edge="1" parent="1" source="dPbgHbm7_m-JhTGGi9_s-12" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="dPbgHbm7_m-JhTGGi9_s-8" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dPbgHbm7_m-JhTGGi9_s-16" edge="1" parent="1" source="dPbgHbm7_m-JhTGGi9_s-8" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="dPbgHbm7_m-JhTGGi9_s-9" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dPbgHbm7_m-JhTGGi9_s-17" edge="1" parent="1" source="dPbgHbm7_m-JhTGGi9_s-9" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="dPbgHbm7_m-JhTGGi9_s-10" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dPbgHbm7_m-JhTGGi9_s-18" edge="1" parent="1" source="dPbgHbm7_m-JhTGGi9_s-10" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="dPbgHbm7_m-JhTGGi9_s-11" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>
