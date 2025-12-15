@@ -10,14 +10,17 @@ class Config:
         self.batch_size = 32
         self.n_workers = 16
         self.segment_len = 128
-        
+        self.use_spec_augment = True
+
         # 模型配置
         self.d_model = 224
         self.nhead = 8
         self.dim_feedforward = 256
         self.dropout = 0.2
         self.num_layers = 3
+        self.use_self_attention_pool = True
         
+
         # 训练配置
         self.seed = 87
         self.valid_steps = 1000

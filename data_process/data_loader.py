@@ -8,6 +8,39 @@ from torch.utils.data import Dataset, DataLoader, random_split
 from torch.nn.utils.rnn import pad_sequence
 
 
+class SpecAugment:
+    """SpecAugment 数据增强类"""
+    def __init__(self, time_mask_num=1, time_mask_param=50, freq_mask_num=1, freq_mask_param=10):
+        self.time_mask_num = time_mask_num
+        self.time_mask_param = time_mask_param
+        self.freq_mask_num = freq_mask_num
+        self.freq_mask_param = freq_mask_param
+    
+    def __call__(self, mel_spectrogram):
+        """
+        对梅尔频谱图应用 SpecAugment
+        Args:
+            mel_spectrogram: 形状为 (time, frequency) 的张量
+        Returns:
+            增强后的梅尔频谱图
+        """
+        augmented = mel_spectrogram.clone()
+        mean_val = augmented.mean()
+        # 时间遮蔽 (Time Masking)
+        time_steps = augmented.shape[0]
+        for _ in range(self.time_mask_num):
+            t = random.randrange(0, min(self.time_mask_param, time_steps))
+            t0 = random.randrange(0, time_steps - t)
+            augmented[t0:t0+t, :] = mean_val  # 通常用0填充，也可以用均值或其他值
+        
+        # 频率遮蔽 (Frequency Masking)
+        freq_steps = augmented.shape[1]
+        for _ in range(self.freq_mask_num):
+            f = random.randrange(0, min(self.freq_mask_param, freq_steps))
+            f0 = random.randrange(0, freq_steps - f)
+            augmented[:, f0:f0+f] = mean_val
+            
+        return augmented
 def clean_json_file(file_path):
     """清理JSON文件中的NUL字符和其他无效字符"""
     try:
@@ -36,10 +69,21 @@ def clean_json_file(file_path):
 
 class SpeakerDataset(Dataset):
     """训练数据集类"""
-    def __init__(self, data_dir, segment_len=128):
+    def __init__(self, data_dir, segment_len=128,use_spec_augment=False, cache_size=1000):
+
+        self.cache = {}
+        self.cache_size = cache_size
+
         self.data_dir = data_dir
         self.segment_len = segment_len
-        
+        self.use_spec_augment = use_spec_augment
+        if self.use_spec_augment:
+            self.spec_augment = SpecAugment(
+                time_mask_num=1, 
+                time_mask_param=50, 
+                freq_mask_num=1, 
+                freq_mask_param=10
+            )
         # 加载speaker映射
         mapping_path = Path(data_dir) / "mapping.json"
         # 先清理文件
@@ -66,10 +110,18 @@ class SpeakerDataset(Dataset):
         return len(self.data)
     
     def __getitem__(self, index):
-        feat_path, speaker = self.data[index]
         
-        # 加载mel-spectrogram
-        mel = torch.load(os.path.join(self.data_dir, feat_path),weights_only=True)
+        
+        
+        if(index in self.cache):
+            mel,speaker = self.cache[index]
+            mel = mel.clone()
+        else:
+            feat_path, speaker = self.data[index]
+            # 加载mel-spectrogram
+            mel = torch.load(os.path.join(self.data_dir, feat_path),weights_only=True)
+            if(len(self.cache) < self.cache_size):
+                self.cache[index] = (mel.clone(),speaker)
         
         # 分段处理
         if len(mel) > self.segment_len:
@@ -78,6 +130,9 @@ class SpeakerDataset(Dataset):
         else:
             mel = torch.FloatTensor(mel)
         
+        if self.use_spec_augment and random.random() > 0.7:
+            mel = self.spec_augment(mel)
+
         speaker = torch.FloatTensor([speaker]).long()
         return mel, speaker
     
@@ -120,9 +175,9 @@ def inference_collate_batch(batch):
     return feat_paths, torch.stack(mels)
 
 
-def get_dataloader(data_dir, batch_size, n_workers, segment_len=128):
+def get_dataloader(data_dir, batch_size, n_workers, use_spec_augment,segment_len=128):
     """生成训练和验证数据加载器"""
-    dataset = SpeakerDataset(data_dir, segment_len)
+    dataset = SpeakerDataset(data_dir, segment_len,use_spec_augment=use_spec_augment)
     speaker_num = dataset.get_speaker_number()
     
     # 分割数据集
@@ -140,6 +195,7 @@ def get_dataloader(data_dir, batch_size, n_workers, segment_len=128):
         pin_memory=True,
         collate_fn=collate_batch,
         persistent_workers=True,
+        prefetch_factor=2,
     )
     
     # 验证数据加载器

@@ -2,8 +2,9 @@
 # train.py
 import os,sys 
 
+os.environ['HPCC_HOME'] = '/opt/hpcc'
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
+sys.path.append('/zion1/student/wyc/pykt-toolkit-main')
 import argparse
 import torch
 import torch.nn as nn
@@ -66,6 +67,7 @@ def train():
         config.data_dir, 
         config.batch_size, 
         config.n_workers,
+        config.use_spec_augment,
         config.segment_len
     )
     
@@ -83,6 +85,7 @@ def train():
         dim_feedforward=config.dim_feedforward,
         
         dropout=config.dropout,
+        use_self_attention_pool=config.use_self_attention_pool
         
     ).to(config.device)
     
@@ -106,7 +109,6 @@ def train():
     # 创建训练迭代器
     train_iterator = iter(train_loader)
 
-    # 方法1：直接使用 torch.amp.GradScaler（推荐）
     scaler = torch.amp.GradScaler('cuda')
     
     for step in range(config.total_steps):

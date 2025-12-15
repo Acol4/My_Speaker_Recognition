@@ -65,6 +65,7 @@ def inference():
         num_layers=config.num_layers,
         dim_feedforward=config.dim_feedforward,
         dropout=config.dropout,
+        use_self_attention_pool=config.use_self_attention_pool
         
     ).to(config.device)
     

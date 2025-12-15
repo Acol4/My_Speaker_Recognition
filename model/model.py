@@ -6,9 +6,24 @@ import torch.nn.functional as F
 import torchaudio
 from torchaudio.models import Conformer
 
+
+
+class SelfAttentionPooling(nn.Module):
+    def __init__(self, input_dim):
+        super().__init__()
+        self.attention_weights = nn.Linear(input_dim, 1)
+        
+    def forward(self, x):
+        # x: (batch, length, dim)
+        attention_scores = self.attention_weights(x)  # (batch, length, 1)
+        attention_weights = F.softmax(attention_scores, dim=1)  # (batch, length, 1)
+        weighted_sum = torch.sum(x * attention_weights, dim=1)  # (batch, dim)
+        return weighted_sum
+
 class Classifier(nn.Module):
     """分类器模型"""
-    def __init__(self,d_model, n_spks, nhead ,num_layers, dim_feedforward,dropout):
+    def __init__(self,d_model, n_spks, nhead ,num_layers, 
+                dim_feedforward,dropout,use_self_attention_pool):
         super().__init__()
         
         # 输入投影层
@@ -23,6 +38,9 @@ class Classifier(nn.Module):
             depthwise_conv_kernel_size=15, 
             dropout=dropout
         )
+        self.use_self_attention_pool = use_self_attention_pool
+        if self.use_self_attention_pool:
+            self.pooling = SelfAttentionPooling(d_model)
         
         
         # 预测层
@@ -46,9 +64,12 @@ class Classifier(nn.Module):
         # Conformer编码
         out,_ = self.encoder_layer(out, lengths) # (batch, length, d_model)
         
-        # 平均池化
-        stats = out.mean(dim=1)
-    
+        
+
+        
+        # 使用自注意力池化或者平均池化
+        stats = self.pooling(out) if self.use_self_attention_pool else out.mean(dim=1)
+
         # 分类输出
         out = self.pred_layer(stats)  # (batch, n_spks)
         return out
@@ -59,7 +80,7 @@ class Classifier(nn.Module):
 
 # class Classifier(nn.Module):
 #     """分类器模型"""
-#     def __init__(self, d_model, n_spks, nhead ,num_layers, dim_feedforward,dropout):
+#     def __init__(self, d_model, n_spks, nhead ,num_layers, dim_feedforward,dropout,use_self_attention_pool):
 #         super().__init__()
         
 #         # 输入投影层
