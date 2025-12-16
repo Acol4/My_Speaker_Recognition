@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # 说话人识别系统
 
 这是一个基于Transformer的说话人识别系统，能够从语音片段中识别出说话人的身份。
@@ -61,10 +61,3 @@ python Inference/Inference.py
 推理结果将以CSV格式保存，包含两列：
 - Id: 样本标识符
 - Category: 预测的说话人类别
-
-=======
-Train:
-python train/train.py
-
-Inference: 
-python Inference/inference.py
